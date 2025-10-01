@@ -14,22 +14,22 @@ impl Scanner {
     pub fn new(source: String) -> Self {
         Self {
             keywords: HashMap::from([
-                ("and".to_string(), TokenType::AND),
-                ("class".to_string(), TokenType::CLASS),
-                ("else".to_string(), TokenType::ELSE),
-                ("false".to_string(), TokenType::FALSE),
-                ("for".to_string(), TokenType::FOR),
-                ("fun".to_string(), TokenType::FUN),
-                ("if".to_string(), TokenType::IF),
-                ("nil".to_string(), TokenType::NIL),
-                ("or".to_string(), TokenType::OR),
-                ("print".to_string(), TokenType::PRINT),
-                ("return".to_string(), TokenType::RETURN),
-                ("super".to_string(), TokenType::SUPER),
-                ("this".to_string(), TokenType::THIS),
-                ("true".to_string(), TokenType::TRUE),
-                ("var".to_string(), TokenType::VAR),
-                ("while".to_string(), TokenType::WHILE),
+                ("and".to_string(), TokenType::And),
+                ("class".to_string(), TokenType::Class),
+                ("else".to_string(), TokenType::Else),
+                ("false".to_string(), TokenType::False),
+                ("for".to_string(), TokenType::For),
+                ("fun".to_string(), TokenType::Fun),
+                ("if".to_string(), TokenType::If),
+                ("nil".to_string(), TokenType::Nil),
+                ("or".to_string(), TokenType::Or),
+                ("print".to_string(), TokenType::Print),
+                ("return".to_string(), TokenType::Return),
+                ("super".to_string(), TokenType::Super),
+                ("this".to_string(), TokenType::This),
+                ("true".to_string(), TokenType::True),
+                ("var".to_string(), TokenType::Var),
+                ("while".to_string(), TokenType::While),
             ]),
             source,
             tokens: Vec::new(),
@@ -46,7 +46,7 @@ impl Scanner {
         }
 
         self.tokens.push(Token::new(
-            TokenType::EOF,
+            TokenType::Eof,
             String::new(),
             None,
             self.line,
@@ -73,46 +73,46 @@ impl Scanner {
     fn scan_token(&mut self) {
         let c = self.advance();
         match c {
-            '(' => self.add_token(TokenType::LEFT_PAREN),
-            ')' => self.add_token(TokenType::RIGHT_PAREN),
-            '{' => self.add_token(TokenType::LEFT_BRACE),
-            '}' => self.add_token(TokenType::RIGHT_BRACE),
-            ',' => self.add_token(TokenType::COMMA),
-            '.' => self.add_token(TokenType::DOT),
-            '-' => self.add_token(TokenType::MINUS),
-            '+' => self.add_token(TokenType::PLUS),
-            ';' => self.add_token(TokenType::SEMICOLON),
-            '*' => self.add_token(TokenType::STAR),
+            '(' => self.add_token(TokenType::LeftParen),
+            ')' => self.add_token(TokenType::RightParen),
+            '{' => self.add_token(TokenType::LeftBrace),
+            '}' => self.add_token(TokenType::RightBrace),
+            ',' => self.add_token(TokenType::Comma),
+            '.' => self.add_token(TokenType::Dot),
+            '-' => self.add_token(TokenType::Minus),
+            '+' => self.add_token(TokenType::Plus),
+            ';' => self.add_token(TokenType::Semicolon),
+            '*' => self.add_token(TokenType::Star),
 
             '!' => {
                 let token_type = if self.token_match('=') {
-                    TokenType::BANG_EQUAL
+                    TokenType::BangEqual
                 } else {
-                    TokenType::BANG
+                    TokenType::Bang
                 };
                 self.add_token(token_type);
             }
             '=' => {
                 let token_type = if self.token_match('=') {
-                    TokenType::EQUAL_EQUAL
+                    TokenType::EqualEqual
                 } else {
-                    TokenType::EQUAL
+                    TokenType::Equal
                 };
                 self.add_token(token_type);
             }
             '<' => {
                 let token_type = if self.token_match('=') {
-                    TokenType::LESS_EQUAL
+                    TokenType::LessEqual
                 } else {
-                    TokenType::LESS
+                    TokenType::Less
                 };
                 self.add_token(token_type);
             }
             '>' => {
                 let token_type = if self.token_match('=') {
-                    TokenType::GREATER_EQUAL
+                    TokenType::GreaterEqual
                 } else {
-                    TokenType::GREATER
+                    TokenType::Greater
                 };
                 self.add_token(token_type);
             }
@@ -122,7 +122,7 @@ impl Scanner {
                         self.advance();
                     }
                 } else {
-                    self.add_token(TokenType::SLASH);
+                    self.add_token(TokenType::Slash);
                 }
             }
 
@@ -159,7 +159,7 @@ impl Scanner {
         self.advance();
 
         let value = self.source[self.start + 1..self.current - 1].to_string();  
-        self.add_token_literal(TokenType::STRING, Some(Literal::String(value)));
+        self.add_token_literal(TokenType::String, Some(Literal::String(value)));
     }
 
     fn number(&mut self) {
@@ -176,7 +176,7 @@ impl Scanner {
         }
 
         let value: f64 = self.source[self.start..self.current].parse().unwrap();
-        self.add_token_literal(TokenType::NUMBER, Some(Literal::Number(value)));
+        self.add_token_literal(TokenType::Number, Some(Literal::Number(value)));
     }
 
     fn identifier(&mut self) {
@@ -188,7 +188,7 @@ impl Scanner {
         let token_type = self.keywords
             .get(text)
             .cloned()
-            .unwrap_or(TokenType::IDENTIFIER);
+            .unwrap_or(TokenType::Identifier);
 
         self.add_token(token_type);
     }
@@ -248,7 +248,7 @@ mod tests {
         let tokens = scanner.scan_tokens();
 
         // Then
-        assert_eq!(tokens[0].type_, TokenType::VAR)
+        assert_eq!(tokens[0].type_, TokenType::Var)
     }
 
     

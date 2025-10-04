@@ -1,6 +1,3 @@
-[[bin]]
-name = "generate_ast"
-path = "tools/generate_ast.rs"
 [package]
 name = "rlox"
 version = "0.1.0"

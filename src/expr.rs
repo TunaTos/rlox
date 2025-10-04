@@ -12,12 +12,12 @@ pub enum Expr {
     Set(Set),
     Super(Super),
     This(This),
-    Unary(Unary),  
-    Variable(Variable),   
+    Unary(Unary),
+    Variable(Variable),
 }
 
 /// Assignment expression
-/// 
+///
 /// # Examples
 /// - `num = 1`
 /// - `x = 5`
@@ -29,7 +29,7 @@ pub struct Assign {
 }
 
 /// Binary expression
-/// 
+///
 /// # Examples
 /// - `3 + 4`
 /// - `x + 3`
@@ -175,67 +175,86 @@ mod tests {
     fn test_assign_creation() {
         // num = 1
         let assign = Assign {
-            name: Token { 
-                token_type: TokenType::Identifier, 
-                lexeme: "num".to_string(), 
-                literal: None, 
-                line: 1, 
+            name: Token {
+                token_type: TokenType::Identifier,
+                lexeme: "num".to_string(),
+                literal: None,
+                line: 1,
             },
-            value: Box::new(
-                Expr::Literal(Literal { value: LiteralValue::Number(1.0) })
-            )
+            value: Box::new(Expr::Literal(Literal {
+                value: LiteralValue::Number(1.0),
+            })),
         };
         assert_eq!(assign.name.lexeme, "num");
-        assert_eq!(*assign.value, Expr::Literal(Literal { value: LiteralValue::Number(1.0) }));
+        assert_eq!(
+            *assign.value,
+            Expr::Literal(Literal {
+                value: LiteralValue::Number(1.0)
+            })
+        );
     }
 
     #[test]
     fn test_binary_addition() {
         // 3 + 4
         let binary = Binary {
-            left: Box::new(Expr::Literal(Literal { value: LiteralValue::Number(3.0) })),
-            operator: Token { 
-                token_type: TokenType::Plus, 
-                lexeme: "+".to_string(), 
-                literal: None, 
-                line: 1 
+            left: Box::new(Expr::Literal(Literal {
+                value: LiteralValue::Number(3.0),
+            })),
+            operator: Token {
+                token_type: TokenType::Plus,
+                lexeme: "+".to_string(),
+                literal: None,
+                line: 1,
             },
-            right: Box::new(Expr::Literal(Literal { value: LiteralValue::Number(4.0) }))
+            right: Box::new(Expr::Literal(Literal {
+                value: LiteralValue::Number(4.0),
+            })),
         };
-        
-        assert_eq!(*binary.left, Expr::Literal(Literal { value: LiteralValue::Number(3.0) }));
+
+        assert_eq!(
+            *binary.left,
+            Expr::Literal(Literal {
+                value: LiteralValue::Number(3.0)
+            })
+        );
         assert_eq!(binary.operator.lexeme, "+");
-        assert_eq!(*binary.right, Expr::Literal(Literal { value: LiteralValue::Number(4.0) }));
+        assert_eq!(
+            *binary.right,
+            Expr::Literal(Literal {
+                value: LiteralValue::Number(4.0)
+            })
+        );
     }
-    
+
     #[test]
     fn test_binary_two_variables() {
         // x + y
         let binary = Binary {
-            left: Box::new(Expr::Variable(Variable { 
-                name: Token { 
-                    token_type: TokenType::Identifier, 
-                    lexeme: "x".to_string(), 
-                    literal: None, 
-                    line: 1 
-                } 
+            left: Box::new(Expr::Variable(Variable {
+                name: Token {
+                    token_type: TokenType::Identifier,
+                    lexeme: "x".to_string(),
+                    literal: None,
+                    line: 1,
+                },
             })),
-            operator: Token { 
-                token_type: TokenType::Plus, 
-                lexeme: "+".to_string(), 
-                literal: None, 
-                line: 1 
+            operator: Token {
+                token_type: TokenType::Plus,
+                lexeme: "+".to_string(),
+                literal: None,
+                line: 1,
             },
-            right: Box::new(Expr::Variable(Variable { 
-                name: Token { 
-                    token_type: TokenType::Identifier, 
-                    lexeme: "y".to_string(), 
-                    literal: None, 
-                    line: 1 
-                } 
-            }))
+            right: Box::new(Expr::Variable(Variable {
+                name: Token {
+                    token_type: TokenType::Identifier,
+                    lexeme: "y".to_string(),
+                    literal: None,
+                    line: 1,
+                },
+            })),
         };
-        
+
         assert_eq!(binary.operator.lexeme, "+");
         match (&*binary.left, &*binary.right) {
             (Expr::Variable(l), Expr::Variable(r)) => {
@@ -256,11 +275,18 @@ mod tests {
                 literal: None,
                 line: 1,
             },
-            right: Box::new(Expr::Literal(Literal { value: LiteralValue::Number(5.0) })),
+            right: Box::new(Expr::Literal(Literal {
+                value: LiteralValue::Number(5.0),
+            })),
         };
-        
+
         assert_eq!(unary.operator.lexeme, "-");
-        assert_eq!(*unary.right, Expr::Literal(Literal { value: LiteralValue::Number(5.0) }));
+        assert_eq!(
+            *unary.right,
+            Expr::Literal(Literal {
+                value: LiteralValue::Number(5.0)
+            })
+        );
     }
 
     #[test]
@@ -268,17 +294,21 @@ mod tests {
         // (1 + 2)
         let grouping = Grouping {
             expression: Box::new(Expr::Binary(Binary {
-                left: Box::new(Expr::Literal(Literal { value: LiteralValue::Number(1.0) })),
+                left: Box::new(Expr::Literal(Literal {
+                    value: LiteralValue::Number(1.0),
+                })),
                 operator: Token {
                     token_type: TokenType::Plus,
                     lexeme: "+".to_string(),
                     literal: None,
                     line: 1,
                 },
-                right: Box::new(Expr::Literal(Literal { value: LiteralValue::Number(2.0) })),
+                right: Box::new(Expr::Literal(Literal {
+                    value: LiteralValue::Number(2.0),
+                })),
             })),
         };
-        
+
         match &*grouping.expression {
             Expr::Binary(b) => assert_eq!(b.operator.lexeme, "+"),
             _ => panic!("Expected binary expression"),
@@ -287,11 +317,19 @@ mod tests {
 
     #[test]
     fn test_literal_values() {
-        let num = Literal { value: LiteralValue::Number(42.0) };
-        let str = Literal { value: LiteralValue::String("hello".to_string()) };
-        let bool_val = Literal { value: LiteralValue::Bool(true) };
-        let nil = Literal { value: LiteralValue::Nil };
-        
+        let num = Literal {
+            value: LiteralValue::Number(42.0),
+        };
+        let str = Literal {
+            value: LiteralValue::String("hello".to_string()),
+        };
+        let bool_val = Literal {
+            value: LiteralValue::Bool(true),
+        };
+        let nil = Literal {
+            value: LiteralValue::Nil,
+        };
+
         assert_eq!(num.value, LiteralValue::Number(42.0));
         assert_eq!(str.value, LiteralValue::String("hello".to_string()));
         assert_eq!(bool_val.value, LiteralValue::Bool(true));
@@ -309,7 +347,7 @@ mod tests {
                 line: 1,
             },
         };
-        
+
         assert_eq!(var.name.lexeme, "count");
     }
 
@@ -331,11 +369,11 @@ mod tests {
                 literal: None,
                 line: 1,
             },
-            arguments: vec![
-                Expr::Literal(Literal { value: LiteralValue::String("hello".to_string()) })
-            ],
+            arguments: vec![Expr::Literal(Literal {
+                value: LiteralValue::String("hello".to_string()),
+            })],
         };
-        
+
         assert_eq!(call.arguments.len(), 1);
     }
 }

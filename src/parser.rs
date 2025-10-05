@@ -2,7 +2,19 @@ use crate::{
     expr::{Binary, Expr, LiteralValue, Unary},
     token::{Token, TokenType},
 };
-
+/// Recursive descent parser for Lox expressions
+///
+/// Grammar (in order of precedence, lowest to highest):
+/// ```text
+/// expression → equality
+/// equality   → comparison ( ( "!=" | "==" ) comparison )*
+/// comparison → term ( ( ">" | ">=" | "<" | "<=" ) term )*
+/// term       → factor ( ( "-" | "+" ) factor )*
+/// factor     → unary ( ( "/" | "*" ) unary )*
+/// unary      → ( "!" | "-" ) unary | primary
+/// primary    → NUMBER | STRING | "true" | "false" | "nil"
+///            | "(" expression ")"
+/// ```
 pub struct Parser {
     tokens: Vec<Token>,
     current: usize,
@@ -13,10 +25,14 @@ impl Parser {
         Self { tokens, current: 0 }
     }
 
+    // === Helper methods ===
+
+    // Check if current token match given type without consuming it
     pub fn check(&self, token_type: TokenType) -> bool {
         !self.is_at_end() && self.peek().token_type == token_type
     }
 
+    // Consume current token and return it
     pub fn advance(&mut self) -> &Token {
         if !self.is_at_end() {
             self.current += 1;
@@ -181,6 +197,8 @@ impl Parser {
 
 #[cfg(test)]
 mod tests {
+    use std::vec;
+    use crate::{ast_printer::{self, AstPrinter}, parser};
     use super::*;
 
     #[test]
@@ -207,5 +225,84 @@ mod tests {
         // Then
         assert_eq!(parser.current, 0);
         assert_eq!(parser.peek().token_type, TokenType::Number);
+    }
+
+    #[test]
+    fn test_eqality_bang_equal() {
+        // Given
+        // 3 != 4
+        let mut parser = Parser::new(
+            vec![
+                Token {
+                    token_type: TokenType::Number,
+                    lexeme: "3".to_string(),
+                    literal: Some(crate::token::Literal::Number(3.0)),
+                    line: 0,
+                },
+                Token {
+                    token_type: TokenType::BangEqual,
+                    lexeme: "!=".to_string(),
+                    literal: None,
+                    line: 0,
+                },
+                Token {
+                    token_type: TokenType::Number,
+                    lexeme: "5".to_string(),
+                    literal: Some(crate::token::Literal::Number(5.0)),
+                    line: 0,
+                },Token {
+            token_type: TokenType::Eof,
+            lexeme: "".to_string(),
+            literal: None,
+            line: 1,
+        },
+            ]
+        );
+
+        // When
+        let expr: Expr = parser.expression();
+        // Then
+        let printer = AstPrinter::new();
+        assert_eq!(printer.print(&expr), "(!= 3 5)");
+    }
+
+    #[test]
+    fn test_eqality_equal_equal() {
+        // Given 
+        // 3 == 3
+        let mut parser = Parser::new(
+            vec![
+                Token {
+                    token_type: TokenType::Number,
+                    lexeme: "3".to_string(),
+                    literal: Some(crate::token::Literal::Number(3.0)),
+                    line: 1,
+                },
+                Token {
+                    token_type:TokenType::EqualEqual,
+                    lexeme: "==".to_string(),
+                    literal: None,
+                    line: 1,
+                },
+                Token {
+                    token_type: TokenType::Number,
+                    lexeme: "3".to_string(),
+                    literal: Some(crate::token::Literal::Number(3.0)),
+                    line: 1,
+                },
+                Token {
+                    token_type: TokenType::Eof,
+                    lexeme: "".to_string(),
+                    literal: None,
+                    line: 1,
+                },
+            ]
+        );
+        // When
+        let expr = parser.equality();
+        
+        // Then
+        let printer = AstPrinter::new();
+        assert_eq!(printer.print(&expr), "(== 3 3)");
     }
 }

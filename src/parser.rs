@@ -197,9 +197,12 @@ impl Parser {
 
 #[cfg(test)]
 mod tests {
-    use std::vec;
-    use crate::{ast_printer::{self, AstPrinter}, parser};
     use super::*;
+    use crate::{
+        ast_printer::{self, AstPrinter},
+        expr, parser,
+    };
+    use std::vec;
 
     #[test]
     fn test_make_parser() {
@@ -231,33 +234,32 @@ mod tests {
     fn test_eqality_bang_equal() {
         // Given
         // 3 != 4
-        let mut parser = Parser::new(
-            vec![
-                Token {
-                    token_type: TokenType::Number,
-                    lexeme: "3".to_string(),
-                    literal: Some(crate::token::Literal::Number(3.0)),
-                    line: 0,
-                },
-                Token {
-                    token_type: TokenType::BangEqual,
-                    lexeme: "!=".to_string(),
-                    literal: None,
-                    line: 0,
-                },
-                Token {
-                    token_type: TokenType::Number,
-                    lexeme: "5".to_string(),
-                    literal: Some(crate::token::Literal::Number(5.0)),
-                    line: 0,
-                },Token {
-            token_type: TokenType::Eof,
-            lexeme: "".to_string(),
-            literal: None,
-            line: 1,
-        },
-            ]
-        );
+        let mut parser = Parser::new(vec![
+            Token {
+                token_type: TokenType::Number,
+                lexeme: "3".to_string(),
+                literal: Some(crate::token::Literal::Number(3.0)),
+                line: 0,
+            },
+            Token {
+                token_type: TokenType::BangEqual,
+                lexeme: "!=".to_string(),
+                literal: None,
+                line: 0,
+            },
+            Token {
+                token_type: TokenType::Number,
+                lexeme: "5".to_string(),
+                literal: Some(crate::token::Literal::Number(5.0)),
+                line: 0,
+            },
+            Token {
+                token_type: TokenType::Eof,
+                lexeme: "".to_string(),
+                literal: None,
+                line: 1,
+            },
+        ]);
 
         // When
         let expr: Expr = parser.expression();
@@ -268,41 +270,240 @@ mod tests {
 
     #[test]
     fn test_eqality_equal_equal() {
-        // Given 
+        // Given
         // 3 == 3
-        let mut parser = Parser::new(
-            vec![
-                Token {
-                    token_type: TokenType::Number,
-                    lexeme: "3".to_string(),
-                    literal: Some(crate::token::Literal::Number(3.0)),
-                    line: 1,
-                },
-                Token {
-                    token_type:TokenType::EqualEqual,
-                    lexeme: "==".to_string(),
-                    literal: None,
-                    line: 1,
-                },
-                Token {
-                    token_type: TokenType::Number,
-                    lexeme: "3".to_string(),
-                    literal: Some(crate::token::Literal::Number(3.0)),
-                    line: 1,
-                },
-                Token {
-                    token_type: TokenType::Eof,
-                    lexeme: "".to_string(),
-                    literal: None,
-                    line: 1,
-                },
-            ]
-        );
+        let mut parser = Parser::new(vec![
+            Token {
+                token_type: TokenType::Number,
+                lexeme: "3".to_string(),
+                literal: Some(crate::token::Literal::Number(3.0)),
+                line: 1,
+            },
+            Token {
+                token_type: TokenType::EqualEqual,
+                lexeme: "==".to_string(),
+                literal: None,
+                line: 1,
+            },
+            Token {
+                token_type: TokenType::Number,
+                lexeme: "3".to_string(),
+                literal: Some(crate::token::Literal::Number(3.0)),
+                line: 1,
+            },
+            Token {
+                token_type: TokenType::Eof,
+                lexeme: "".to_string(),
+                literal: None,
+                line: 1,
+            },
+        ]);
         // When
         let expr = parser.equality();
-        
+
         // Then
         let printer = AstPrinter::new();
         assert_eq!(printer.print(&expr), "(== 3 3)");
+    }
+
+    #[test]
+    fn test_comparison_greater() {
+        // Given: 5 > 3
+        let mut parser = Parser::new(vec![
+            Token {
+                token_type: TokenType::Number,
+                lexeme: "5".to_string(),
+                literal: Some(crate::token::Literal::Number(5.0)),
+                line: 1,
+            },
+            Token {
+                token_type: TokenType::Greater,
+                lexeme: ">".to_string(),
+                literal: None,
+                line: 1,
+            },
+            Token {
+                token_type: TokenType::Number,
+                lexeme: "3".to_string(),
+                literal: Some(crate::token::Literal::Number(3.0)),
+                line: 1,
+            },
+            Token {
+                token_type: TokenType::Eof,
+                lexeme: "".to_string(),
+                literal: None,
+                line: 1,
+            },
+        ]);
+
+        // When
+        let expr = parser.comparison();
+
+        // Then
+        let printer = AstPrinter::new();
+        assert_eq!(printer.print(&expr), "(> 5 3)"); 
+    }
+
+    #[test]
+    fn test_comparison_greater_equal() {
+        // Given: 5 >= 5
+        let mut parser = Parser::new(vec![
+            Token {
+                token_type: TokenType::Number,
+                lexeme: "5".to_string(),
+                literal: Some(crate::token::Literal::Number(5.0)),
+                line: 1,
+            },
+            Token {
+                token_type: TokenType::GreaterEqual, 
+                lexeme: ">=".to_string(),            
+                literal: None,
+                line: 1,
+            },
+            Token {
+                token_type: TokenType::Number,
+                lexeme: "5".to_string(),
+                literal: Some(crate::token::Literal::Number(5.0)),
+                line: 1,
+            },
+            Token {
+                token_type: TokenType::Eof,
+                lexeme: "".to_string(),
+                literal: None,
+                line: 1,
+            },
+        ]);
+
+        // When
+        let expr = parser.comparison();
+
+        // Then
+        let printer = AstPrinter::new();
+        assert_eq!(printer.print(&expr), "(>= 5 5)"); 
+    }
+    #[test]
+    fn test_comparison_less() {
+        // Given
+        // 3 < 5
+        let mut parser = Parser::new(vec![
+            Token {
+                token_type: TokenType::Number,
+                lexeme: "3".to_string(),
+                literal: Some(crate::token::Literal::Number(3.0)),
+                line: 1,
+            },
+            Token {
+                token_type: TokenType::Less, 
+                lexeme: "<".to_string(),            
+                literal: None,
+                line: 1,
+            },
+            Token {
+                token_type: TokenType::Number,
+                lexeme: "5".to_string(),
+                literal: Some(crate::token::Literal::Number(5.0)),
+                line: 1,
+            },
+            Token {
+                lexeme: "".to_string(),
+                token_type: TokenType::Eof,
+                literal: None,
+                line: 1,
+            },
+        ]);
+        
+        // When
+        let expr = parser.comparison();
+
+        // Then
+        let printer = AstPrinter::new();
+        assert_eq!(printer.print(&expr), "(< 3 5)"); 
+    }
+
+    #[test]
+    fn test_comparison_less_equal() {
+        //Givem
+        // 3 <= 3
+        let mut parser = Parser::new(vec![
+            Token {
+                token_type: TokenType::Number,
+                lexeme: "3".to_string(),
+                literal: Some(crate::token::Literal::Number(3.0)),
+                line: 1,
+            },
+            Token {
+                token_type: TokenType::Less, 
+                lexeme: "<=".to_string(),            
+                literal: None,
+                line: 1,
+            },
+            Token {
+                token_type: TokenType::Number,
+                lexeme: "3".to_string(),
+                literal: Some(crate::token::Literal::Number(3.0)),
+                line: 1,
+            },
+            Token {
+                lexeme: "".to_string(),
+                token_type: TokenType::Eof,
+                literal: None,
+                line: 1,
+            },
+        ]);
+        
+        // When
+        let expr = parser.comparison();
+            
+        // Then
+        let printer = AstPrinter::new();
+        assert_eq!(printer.print(&expr), "(<= 3 3)");
+    }
+    
+    #[test]
+    fn test_term_minus() {
+        // Given
+        // 5 - 3
+        let mut parser = Parser::new(vec![
+            Token {
+                token_type: TokenType::Number,
+                lexeme: "5".to_string(),
+                literal: Some(crate::token::Literal::Number(5.0)),
+                line: 1,
+            },
+            Token {
+                token_type: TokenType::Minus, 
+                lexeme: "-".to_string(),            
+                literal: None,
+                line: 1,
+            },
+            Token {
+                token_type: TokenType::Number,
+                lexeme: "3".to_string(),
+                literal: Some(crate::token::Literal::Number(3.0)),
+                line: 1,
+            },
+            Token {
+                lexeme: "".to_string(),
+                token_type: TokenType::Eof,
+                literal: None,
+                line: 1,
+            },
+        ]);
+
+        // When
+        let expr = parser.term();
+        
+        // Then
+        let printer = AstPrinter::new();
+        assert_eq!(printer.print(&expr), "(- 5 3)");
+    }
+
+    #[test]
+    fn test_term_plus() {
+        // Given
+
+        // When
+
+        // Then
     }
 }

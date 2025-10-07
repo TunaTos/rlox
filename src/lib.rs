@@ -4,5 +4,6 @@ pub mod interpreter;
 pub mod lox;
 pub mod lox_value;
 pub mod parser;
+pub mod runtime_error;
 pub mod scanner;
 pub mod token;

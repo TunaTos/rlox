@@ -114,7 +114,6 @@ mod test {
 
         #[test]
         fn test_is_truthy_number_zero() {
-            // Lox에서는 0도 truthy!
             let number_zero = LoxValue::Number(0.0);
             assert_eq!(number_zero.is_truthy(), true);
         }
@@ -133,7 +132,6 @@ mod test {
 
         #[test]
         fn test_is_truthy_string_empty() {
-            // Lox에서는 빈 문자열도 truthy!
             let string_empty = LoxValue::String(String::from(""));
             assert_eq!(string_empty.is_truthy(), true);
         }
